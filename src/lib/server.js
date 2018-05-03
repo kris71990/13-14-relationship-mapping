@@ -3,7 +3,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import logger from './logger';
-import carRoutes from '../route/car-routes';
+import houseRoutes from '../route/house-routes';
 import loggerMiddleware from './logger-middleware';
 import errorMiddleware from './error-middleware';
 
@@ -11,7 +11,7 @@ const app = express();
 let server = null;
 
 app.use(loggerMiddleware);
-app.use(carRoutes);
+app.use(houseRoutes);
 
 app.all('*', (request, response) => {
   logger.log(logger.INFO, 'SERVER - 404 error from catch-all route');

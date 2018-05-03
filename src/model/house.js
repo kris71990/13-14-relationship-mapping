@@ -2,23 +2,24 @@
 
 import mongoose from 'mongoose';
 
-const carSchema = mongoose.Schema({
-  make: {
+const houseSchema = mongoose.Schema({
+  type: {
     type: String,
     required: true,
   },
-  model: {
+  address: {
     type: String,
     required: true,
+    unique: true,
   },
-  year: {
+  built: {
     type: Number,
     required: true,
   },
-  color: {
-    type: String,
+  worth: {
+    type: Number,
     default: null,
   },
 }); 
 
-export default mongoose.model('car', carSchema);
+export default mongoose.model('house', houseSchema);

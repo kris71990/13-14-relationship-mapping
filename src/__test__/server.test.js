@@ -2,84 +2,86 @@
 
 import faker from 'faker';
 import superagent from 'superagent';
-import Car from '../model/car';
+import House from '../model/house';
 import { startServer, stopServer } from '../lib/server';
 
-const apiURL = `http://localhost:${process.env.PORT}/api/car`;
+const apiURL = `http://localhost:${process.env.PORT}/api/house`;
 
 
-const createMockCar = () => {
-  return new Car({
-    make: 'Honda',
-    model: 'Civic', 
-    year: 2012,
-    color: 'silver',
+const createMockHouse = () => {
+  return new House({
+    type: 'townhouse',
+    address: '111 Main Street', 
+    built: 2012,
+    worth: 500000,
   }).save();
 };
 
-// const fakerMocks = () => {
-//   return new Car({
-//     make: faker.random.word(),
-//     model: faker.random.word(),
-//     year: faker.random.number(),
-//   }).save();
-// };
+const fakerMocks = () => {
+  return new House({
+    type: faker.random.word(),
+    address: faker.address.streetAddress(),
+    built: faker.random.number(),
+    worth: faker.random.number(),
+  }).save();
+};
 
-// const createManyMocks = (howMany) => {
-//   return Promise.all(new Array(howMany)
-//     .fill(0)
-//     .map(() => fakerMocks()));
-// };
+const createManyMocks = (howMany) => {
+  return Promise.all(new Array(howMany)
+    .fill(0)
+    .map(() => fakerMocks()));
+};
 
-describe('/api/car', () => {
+describe('/api/house', () => {
   beforeAll(startServer);
   afterAll(stopServer);
-  afterEach(() => Car.remove({}));
+  afterEach(() => House.remove({}));
 
-  describe('POST api/car/:id', () => {
+  describe('POST api/house/:id', () => {
     test('POST - should respond with 200 status and posted information', () => {
-      const testCar = {
-        make: 'Suburu',
-        model: 'Forester', 
-        year: 2009,
-        color: 'orange',
+      const testHouse = {
+        type: 'townhouse',
+        address: '111 Main Street', 
+        built: 2012,
+        worth: 500000,
       };
   
       return superagent.post(apiURL)
-        .send(testCar)
+        .send(testHouse)
         .then((response) => {
           expect(response.status).toEqual(200);
-          expect(response.body.make).toEqual(testCar.make);
-          expect(response.body.color).toEqual(testCar.color);
-          expect(response.body.model).toEqual(testCar.model);
-          expect(response.body.year).toEqual(testCar.year);
+          expect(response.body.type).toEqual(testHouse.type);
+          expect(response.body.address).toEqual(testHouse.address);
+          expect(response.body.built).toEqual(testHouse.built);
+          expect(response.body.worth).toEqual(testHouse.worth);
           expect(response.body._id).toBeTruthy();
         });
     });
 
-    // test.only('POST - 409 for duplicate car', () => { // eslint-disable-line
-    //   return createMockCar()
-    //     .then((car) => {
-    //       const mockCar2 = {
-    //         make: car.make,
-    //         model: car.model, 
-    //         year: car.year,
-    //         color: car.color,
-    //       };
-    //       return superagent.post(apiURL)
-    //         .send(mockCar2);
-    //     })
-    //     .catch((error) => {
-    //       expect(error.status).toEqual(409);
-    //     });
-    // });
+    test('POST - 409 for duplicate house', () => { // eslint-disable-line
+      return createMockHouse()
+        .then((house) => {
+          const mockHouse2 = {
+            type: house.type,
+            address: house.address, 
+            built: house.built,
+            worth: house.worth,
+          };
+          return superagent.post(apiURL)
+            .send(mockHouse2);
+        })
+        .then(Promise.reject)
+        .catch((error) => {
+          expect(error.status).toEqual(409);
+        });
+    });
   
     test('POST - should respond with 400 status for error', () => {
-      const testCar = {
-        make: faker.lorem.words(5),
+      const testHouse = {
+        type: faker.random.word(),
       };
       return superagent.post(apiURL)
-        .send(testCar)
+        .send(testHouse)
         .then(Promise.reject)
         .catch((response) => {
           expect(response.status).toEqual(400);
@@ -87,18 +89,18 @@ describe('/api/car', () => {
     });
   });
   
-  describe('GET api/car/:id', () => {
+  describe('GET api/house/:id', () => {
     test('GET - should respond with 200 status and information', () => {
-      let testCar = null;
-      return createMockCar()
-        .then((car) => {
-          testCar = car;
-          return superagent.get(`${apiURL}/${car._id}`);
+      let testHouse = null;
+      return createMockHouse()
+        .then((house) => {
+          testHouse = house;
+          return superagent.get(`${apiURL}/${house._id}`);
         })
         .then((response) => {
           expect(response.status).toEqual(200);
-          expect(response.body.make).toEqual(testCar.make);
-          expect(response.body.year).toEqual(testCar.year);
+          expect(response.body.type).toEqual(testHouse.type);
+          expect(response.body.address).toEqual(testHouse.address);
           expect(response.body._id).toBeTruthy();
         });
     });
@@ -111,11 +113,11 @@ describe('/api/car', () => {
     });
   });
   
-  describe('DELETE api/car/:id', () => {
+  describe('DELETE api/house/:id', () => {
     test('DELETE - should respond with 204 status', () => {
-      return createMockCar()
-        .then((car) => {
-          return superagent.delete(`${apiURL}/${car._id}`);
+      return createMockHouse()
+        .then((house) => {
+          return superagent.delete(`${apiURL}/${house._id}`);
         })
         .then((response) => {
           expect(response.status).toEqual(204);
@@ -124,7 +126,7 @@ describe('/api/car', () => {
     });
 
     test('DELETE - should respond with 404 for id not found', () => { 
-      return createMockCar()
+      return createMockHouse()
         .then(() => {
           return superagent.delete(`${apiURL}/1234`);
         })
@@ -136,29 +138,30 @@ describe('/api/car', () => {
   });
 
   // 400 and 409
-  describe('UPDATE api/car/:id', () => {
+  describe('UPDATE api/house/:id', () => {
     test('PUT - should respond with 200 status and updated information', () => {
-      let testCar = null;
-      return createMockCar()
-        .then((car) => {
-          testCar = car;
-          return superagent.put(`${apiURL}/${car._id}`)
+      let testHouse = null;
+      return createMockHouse()
+        .then((house) => {
+          testHouse = house;
+          return superagent.put(`${apiURL}/${house._id}`)
             .send({ 
-              make: 'Ford', 
-              model: 'Focus', 
+              type: 'condo', 
+              address: '123 test', 
             });
         })
         .then((response) => {
           expect(response.status).toEqual(200);
-          expect(response.body.make).toEqual('Ford');
-          expect(response.body.model).toEqual('Focus');
-          expect(response.body.year).toEqual(testCar.year);
-          expect(response.body._id).toEqual(testCar._id.toString());
+          expect(response.body.type).toEqual('condo');
+          expect(response.body.address).toEqual('123 test');
+          expect(response.body.built).toEqual(testHouse.built);
+          expect(response.body.worth).toEqual(testHouse.worth);
+          expect(response.body._id).toEqual(testHouse._id.toString());
         });
     });
 
     test('PUT - should respond with 404 for id not found', () => {
-      return createMockCar()
+      return createMockHouse()
         .then(() => {
           return superagent.put(`${apiURL}/1234`);
         })
@@ -168,32 +171,29 @@ describe('/api/car', () => {
         });
     });
 
-    // test.only('PUT - should respond with 400 for validation error', () => { // eslint-disable-line
-    //   return createMockCar()
-    //     .then((car) => {
-    //       return superagent.put(`${apiURL}/${car._id}`)
-    //         .send({ invalid: 'error' });
-    //     })
-    //     .catch((response) => {
-    //       expect(response.status).toEqual(400);
-    //     });
-    // });
+    test('PUT - should respond with 400 for validation error', () => {
+      return createMockHouse()
+        .then((house) => {
+          return superagent.put(`${apiURL}/${house._id}`)
+            .send({ type: '' });
+        })
+        .catch((response) => {
+          expect(response.status).toEqual(400);
+        });
+    });
 
-    // test('PUT - should respond with 409 for duplicate key', () => { // eslint-disable-line
-    //   return createMockCar()
-    //     .then((car) => {
-    //       return superagent.put(`${apiURL}/${car._id}`)
-    //         .send({ 
-    //           make: 'Honda',
-    //           model: 'Civic', 
-    //           year: 2012,
-    //           color: 'silver',
-    //         });
-    //     })
-    //     .catch((response) => {
-    //       expect(response.status).toEqual(409);
-    //     });
-    // });
+    test('PUT - should respond with 409 for duplicate key', () => {
+      return createManyMocks(2)
+        .then((houses) => {
+          return superagent.put(`${apiURL}/${houses[0]._id}`)
+            .send({ 
+              address: houses[1].address,
+            });
+        })
+        .catch((response) => {
+          expect(response.status).toEqual(409);
+        });
+    });
   });
 
   describe('Invalid route should route to catch-all', () => {
