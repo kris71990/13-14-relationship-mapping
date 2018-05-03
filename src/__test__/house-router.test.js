@@ -4,6 +4,7 @@ import faker from 'faker';
 import superagent from 'superagent';
 import House from '../model/house';
 import { startServer, stopServer } from '../lib/server';
+// import { createManyMocks, createMockHouse, removeMocks } from './lib/house-mock';
 
 const apiURL = `http://localhost:${process.env.PORT}/api/house`;
 
@@ -42,6 +43,7 @@ describe('/api/house', () => {
       const testHouse = {
         type: 'townhouse',
         address: '111 Main Street', 
+        size: 1500,
         built: 2012,
         worth: 500000,
       };
@@ -58,12 +60,13 @@ describe('/api/house', () => {
         });
     });
 
-    test('POST - 409 for duplicate house', () => { // eslint-disable-line
+    test('POST - 409 for duplicate house', () => {
       return createMockHouse()
         .then((house) => {
           const mockHouse2 = {
             type: house.type,
             address: house.address, 
+            size: house.size,
             built: house.built,
             worth: house.worth,
           };
