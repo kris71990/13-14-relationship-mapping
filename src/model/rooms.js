@@ -5,21 +5,17 @@ import HttpError from 'http-errors';
 import House from './house';
 
 const roomSchema = mongoose.Schema({
-  // add properties
-  bedrooms: {
+  type: {
+    type: String,
+    required: true,
+  },
+  size: {
+    type: Number,
+  },
+  floor: {
     type: Number,
     required: true,
   },
-
-  bathrooms: {
-    type: Number,
-    required: true,
-  },
-  
-  yard: {
-    type: Boolean,
-  },
-
   house: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
@@ -34,14 +30,14 @@ function roomPreHook(done) {
         throw new HttpError(404, 'house not found');
       }
       houseFound.rooms.push(this._id);
-      return houseFound.save()
-        .then(() => done())
-        .catch(done);
-    });
+      return houseFound.save();
+    })
+    .then(() => done())
+    .catch(done);
 }
 
 const roomPostHook = (document, done) => {
-  return House.findById(this.house)
+  return House.findById(document.house)
     .then((houseFound) => {
       if (!houseFound) {
         throw new HttpError(500, 'house not found');

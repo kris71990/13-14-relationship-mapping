@@ -1,25 +1,26 @@
 'use strict';
 
-import faker from 'faker';
+// import faker from 'faker';
 import superagent from 'superagent';
-import House from '../model/house';
 import { startServer, stopServer } from '../lib/server';
-import { createManyMocks, createMockHouse } from './lib/house-mock';
-import { createRoomMock, removeRoomMock } from './lib/room-mock';
+import { pCreateMockHouse } from './lib/house-mock';
+import { pCreateRoomMock, pRemoveRoomMock } from './lib/room-mock';
 
-const apiURL = `http://localhost:${process.env.PORT}/api/house`;
+const apiURL = `http://localhost:${process.env.PORT}/api/rooms`;
 
 describe('/api/rooms', () => {
   beforeAll(startServer);
   afterAll(stopServer);
-  afterEach(removeRoomMock);
+  afterEach(pRemoveRoomMock);
 
   describe('POST /api/rooms', () => {
     test('200 status code on creation', () => {
-      return createMockHouse()
+      return pCreateMockHouse()
         .then((house) => {
           const roomPost = {
-            // information for room
+            type: 'bedroom',
+            size: 300,
+            floor: 2,
             house: house._id,
           };
           return superagent.post(apiURL)
@@ -33,16 +34,16 @@ describe('/api/rooms', () => {
 
   describe('PUT /api/rooms', () => {
     test('200 status code on successful update', () => {
-      return createRoomMock()
+      let updatedRoom = null;
+      return pCreateRoomMock()
         .then((mock) => {
-          return superagent.put(`${apiURL}/${mock.card._id}`)
-            .send({
-              // send update information
-            });
+          updatedRoom = mock.room;
+          return superagent.put(`${apiURL}/${mock.room._id}`)
+            .send({ floor: 1 });
         })
         .then((response) => {
           expect(response.status).toEqual(200);
-          expect(response.status.bathrooms).toEqual(// uptdated info
+          expect(response.body.floor).toEqual(updatedRoom.floor);
         });
     });
   });

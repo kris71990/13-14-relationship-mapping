@@ -2,41 +2,16 @@
 
 import faker from 'faker';
 import superagent from 'superagent';
-import House from '../model/house';
 import { startServer, stopServer } from '../lib/server';
-// import { createManyMocks, createMockHouse, removeMocks } from './lib/house-mock';
+import { pCreateMockHouse, pCreateManyMocks, pRemoveMocks } from './lib/house-mock';
 
 const apiURL = `http://localhost:${process.env.PORT}/api/house`;
-
-
-const createMockHouse = () => {
-  return new House({
-    type: 'townhouse',
-    address: '111 Main Street', 
-    built: 2012,
-    worth: 500000,
-  }).save();
-};
-
-const fakerMocks = () => {
-  return new House({
-    type: faker.random.word(),
-    address: faker.address.streetAddress(),
-    built: faker.random.number(),
-    worth: faker.random.number(),
-  }).save();
-};
-
-const createManyMocks = (howMany) => {
-  return Promise.all(new Array(howMany)
-    .fill(0)
-    .map(() => fakerMocks()));
-};
 
 describe('/api/house', () => {
   beforeAll(startServer);
   afterAll(stopServer);
-  afterEach(() => House.remove({}));
+  // afterEach(() => House.remove({}));
+  afterEach(pRemoveMocks);
 
   describe('POST api/house/:id', () => {
     test('POST - should respond with 200 status and posted information', () => {
@@ -61,7 +36,7 @@ describe('/api/house', () => {
     });
 
     test('POST - 409 for duplicate house', () => {
-      return createMockHouse()
+      return pCreateMockHouse()
         .then((house) => {
           const mockHouse2 = {
             type: house.type,
@@ -95,7 +70,7 @@ describe('/api/house', () => {
   describe('GET api/house/:id', () => {
     test('GET - should respond with 200 status and information', () => {
       let testHouse = null;
-      return createMockHouse()
+      return pCreateMockHouse()
         .then((house) => {
           testHouse = house;
           return superagent.get(`${apiURL}/${house._id}`);
@@ -118,7 +93,7 @@ describe('/api/house', () => {
   
   describe('DELETE api/house/:id', () => {
     test('DELETE - should respond with 204 status', () => {
-      return createMockHouse()
+      return pCreateMockHouse()
         .then((house) => {
           return superagent.delete(`${apiURL}/${house._id}`);
         })
@@ -129,7 +104,7 @@ describe('/api/house', () => {
     });
 
     test('DELETE - should respond with 404 for id not found', () => { 
-      return createMockHouse()
+      return pCreateMockHouse()
         .then(() => {
           return superagent.delete(`${apiURL}/1234`);
         })
@@ -144,7 +119,7 @@ describe('/api/house', () => {
   describe('UPDATE api/house/:id', () => {
     test('PUT - should respond with 200 status and updated information', () => {
       let testHouse = null;
-      return createMockHouse()
+      return pCreateMockHouse()
         .then((house) => {
           testHouse = house;
           return superagent.put(`${apiURL}/${house._id}`)
@@ -164,7 +139,7 @@ describe('/api/house', () => {
     });
 
     test('PUT - should respond with 404 for id not found', () => {
-      return createMockHouse()
+      return pCreateMockHouse()
         .then(() => {
           return superagent.put(`${apiURL}/1234`);
         })
@@ -175,7 +150,7 @@ describe('/api/house', () => {
     });
 
     test('PUT - should respond with 400 for validation error', () => {
-      return createMockHouse()
+      return pCreateMockHouse()
         .then((house) => {
           return superagent.put(`${apiURL}/${house._id}`)
             .send({ type: '' });
@@ -186,7 +161,7 @@ describe('/api/house', () => {
     });
 
     test('PUT - should respond with 409 for duplicate key', () => {
-      return createManyMocks(2)
+      return pCreateManyMocks(2)
         .then((houses) => {
           return superagent.put(`${apiURL}/${houses[0]._id}`)
             .send({ 

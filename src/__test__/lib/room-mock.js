@@ -2,16 +2,19 @@
 
 import faker from 'faker';
 import Room from '../../model/rooms';
-import { createMockHouse, createManyMocks, removeMocks } from './house-mock';
+import { pCreateMockHouse, pRemoveMocks } from './house-mock';
 
-const createRoomMock = () => {
+const pCreateRoomMock = () => {
   const resultMock = {};
 
-  return createMockHouse()
+  return pCreateMockHouse()
     .then((house) => {
       resultMock.house = house;
       return new Room({
-        // card information just like house
+        type: faker.random.words(2),
+        size: faker.random.number(),
+        floor: faker.random.number(),
+        house: house._id,
       }).save();
     })
     .then((room) => {
@@ -20,9 +23,9 @@ const createRoomMock = () => {
     });
 };
 
-const removeRoomMock = () => Promise.all([
+const pRemoveRoomMock = () => Promise.all([
   Room.remove({}),
-  removeMocks(),
+  pRemoveMocks(),
 ]);
 
-export { createRoomMock, removeRoomMock };
+export { pCreateRoomMock, pRemoveRoomMock };

@@ -3,7 +3,7 @@
 import faker from 'faker';
 import House from '../../model/house';
 
-const fakerMocks = () => {
+const pFakerMocks = () => {
   return new House({
     type: faker.random.word(),
     address: faker.address.streetAddress(),
@@ -13,7 +13,7 @@ const fakerMocks = () => {
   }).save();
 };
 
-const createMockHouse = () => {
+const pCreateMockHouse = () => {
   return new House({
     type: 'townhouse',
     address: '111 Main Street', 
@@ -23,12 +23,12 @@ const createMockHouse = () => {
   }).save();
 };
 
-const createManyMocks = (howMany) => {
+const pCreateManyMocks = (howMany) => {
   return Promise.all(new Array(howMany)
     .fill(0)
-    .map(() => fakerMocks()));
+    .map(() => pFakerMocks()));
 };
 
-const removeMocks = () => House.remove({});
+const pRemoveMocks = () => House.remove({});
 
-export default { createMockHouse, createManyMocks, removeMocks };
+export { pCreateMockHouse, pCreateManyMocks, pRemoveMocks };
