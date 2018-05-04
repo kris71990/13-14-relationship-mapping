@@ -8,13 +8,13 @@ const pCreateRoomMock = () => {
   const resultMock = {};
 
   return pCreateMockHouse()
-    .then((house) => {
-      resultMock.house = house;
+    .then((createdHouse) => {
+      resultMock.house = createdHouse;
       return new Room({
         type: faker.random.words(2),
         size: faker.random.number(),
         floor: faker.random.number(),
-        house: house._id,
+        house: createdHouse._id,
       }).save();
     })
     .then((room) => {

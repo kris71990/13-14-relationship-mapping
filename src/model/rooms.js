@@ -11,6 +11,7 @@ const roomSchema = mongoose.Schema({
   },
   size: {
     type: Number,
+    unique: true,
   },
   floor: {
     type: Number,
@@ -53,4 +54,4 @@ const roomPostHook = (document, done) => {
 roomSchema.pre('save', roomPreHook);
 roomSchema.post('remove', roomPostHook);
 
-export default mongoose.Schema('room', roomSchema);
+export default mongoose.model('room', roomSchema);

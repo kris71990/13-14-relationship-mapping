@@ -10,7 +10,6 @@ const apiURL = `http://localhost:${process.env.PORT}/api/house`;
 describe('/api/house', () => {
   beforeAll(startServer);
   afterAll(stopServer);
-  // afterEach(() => House.remove({}));
   afterEach(pRemoveMocks);
 
   describe('POST api/house/:id', () => {
