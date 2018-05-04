@@ -12,6 +12,10 @@ const houseSchema = mongoose.Schema({
     required: true,
     unique: true,
   },
+  size: {
+    type: Number,
+    required: true,
+  },
   built: {
     type: Number,
     required: true,
@@ -20,6 +24,11 @@ const houseSchema = mongoose.Schema({
     type: Number,
     default: null,
   },
-}); 
+  rooms: [
+    {
+      type: mongoose.Schema.Types.ObjectId, ref: 'room',
+    },
+  ], 
+}, { usePushEach: true });
 
 export default mongoose.model('house', houseSchema);
